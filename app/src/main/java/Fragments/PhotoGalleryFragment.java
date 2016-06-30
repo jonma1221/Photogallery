@@ -1,8 +1,6 @@
 package Fragments;
 
 
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,9 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.pixuredlinux3.photogallery.FlickrFetchr;
 import com.example.pixuredlinux3.photogallery.R;
-import com.example.pixuredlinux3.photogallery.ThumbnailDownloader;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -44,7 +40,6 @@ public class PhotoGalleryFragment extends Fragment {
     private static final String TAG = "PhotoGalleryFragment";
     private RecyclerView mPhotoRecyclerView;
     private List<GalleryItem> mItems = new ArrayList<>();
-    private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
 
     public static PhotoGalleryFragment newInstance() {
         return new PhotoGalleryFragment();
@@ -91,22 +86,7 @@ public class PhotoGalleryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        //new FetchItemsTask().execute();
         sendRequest();
-        /*Handler responseHandler = new Handler();
-        mThumbnailDownloader = new ThumbnailDownloader<>(responseHandler);
-        mThumbnailDownloader.setThumbnailDownloadListener(
-                new ThumbnailDownloader.ThumbnailDownloadListener<PhotoHolder>() {
-                    @Override
-                    public void onThumbnailDownloaded(PhotoHolder target, Bitmap thumbnail) {
-                        Drawable drawable = new BitmapDrawable(getResources(), thumbnail);
-                        target.bindDrawable(drawable);
-                    }
-                }
-        );
-
-        mThumbnailDownloader.start();
-        mThumbnailDownloader.getLooper();*/
         Log.i(TAG, "Background thread started");
     }
 
@@ -118,43 +98,11 @@ public class PhotoGalleryFragment extends Fragment {
                 .findViewById(R.id.fragment_photo_gallery_recycler_view);
         mPhotoRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 3));
 
-        //setupAdapter();
         setupAdapter(mItems);
         return v;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        //mThumbnailDownloader.clearQueue();
-    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //mThumbnailDownloader.quit();
-        Log.i(TAG, "Background thread destroyed");
-    }
-
-    private class FetchItemsTask extends AsyncTask<Void,Void,List<GalleryItem>>{
-
-        @Override
-        protected List<GalleryItem> doInBackground(Void... params) {
-            return new FlickrFetchr().fetchItems();
-        }
-
-        @Override
-        protected void onPostExecute(List<GalleryItem> galleryItems) {
-            mItems = galleryItems;
-            //setupAdapter();
-        }
-    }
-
-    /*private void setupAdapter(){
-        if(isAdded()){
-            mPhotoRecyclerView.setAdapter(new PhotoAdapter(mItems));
-        }
-    }*/
 
     private void setupAdapter(List<GalleryItem> mItems){
         mPhotoRecyclerView.setAdapter(new PhotoAdapter(mItems));
@@ -170,9 +118,6 @@ public class PhotoGalleryFragment extends Fragment {
                     .findViewById(R.id.fragment_photo_gallery_image_view);
         }
 
-        public void bindDrawable(Drawable drawable) {
-            mItemImageView.setImageDrawable(drawable);
-        }
 
         public void bindGalleryItem(GalleryItem galleryItem) {
             Picasso.with(getActivity())
@@ -198,9 +143,6 @@ public class PhotoGalleryFragment extends Fragment {
         @Override
         public void onBindViewHolder(PhotoHolder photoHolder, int position) {
             GalleryItem galleryItem = mGalleryItems.get(position);
-            //Drawable placeholder = getResources().getDrawable(R.drawable.bill_up_close);
-            //photoHolder.bindDrawable(placeholder);
-            //mThumbnailDownloader.queueThumbnail(photoHolder, galleryItem.getUrl_s());
             photoHolder.bindGalleryItem(galleryItem);
         }
 
